@@ -35,8 +35,8 @@ typedef struct {
     int  hp, hp_max;
     int  forca, destreza, constituicao;
     int  inteligencia, sabedoria, carisma, iniciativa;
-    NoItem* inventario;   /* ponteiro para o início da lista de itens */
-    Local*  local_atual;  /* ponteiro para onde o personagem está no mundo */
+    NoItem* inventario;
+    Local*  local_atual;
 } Personagem;
 
 #endif
