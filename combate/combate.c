@@ -7,6 +7,7 @@ void combate_iniciar(EstadoCombate* c) {
     c->pilha_magias = NULL;
     undo_iniciar(&c->undo);
     loot_iniciar(&c->loot);
+    fila_comandos_iniciar(&c->buffer_comandos);
 }
 
 void combate_finalizar(EstadoCombate* c) {

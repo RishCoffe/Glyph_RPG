@@ -11,6 +11,7 @@ typedef struct {
     NoMagia*    pilha_magias;
     PilhaUndo   undo;
     FilaLoot    loot;
+    FilaComandos buffer_comandos;
 } EstadoCombate;
 
 void combate_iniciar(EstadoCombate* c);

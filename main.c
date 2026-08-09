@@ -51,6 +51,7 @@ int main(void) {
         printf("3. Sistema de Combate & Loot\n");
         printf("4. Historico de Eventos (Navegacao)\n");
         printf("5. Salvar / Carregar Campanha\n");
+        printf("6. Modo Debug (Fila de Comandos)\n");
         printf("0. Sair do Programa\n");
         printf("===========================================\n");
         printf("Escolha uma opcao: ");
@@ -264,9 +265,11 @@ int main(void) {
                     printf("--- GERENCIAMENTO DE COMBATE ---\n");
                     printf("1. Carregar Personagens do Grupo no Combate (Turnos)\n");
                     printf("2. Avançar Turno do Combate\n");
-                    printf("3. Empilhar Magia / Acao de Undo\n");
+                    printf("3. Registrar Acao de Undo\n");
                     printf("4. Adicionar Item ao Fila de Loot\n");
                     printf("5. Distribuir Loot para Personagem\n");
+                    printf("6. Empilhar Magia (Pilha de Resolucao)\n");
+                    printf("7. Resolver Ultima Magia Empilhada\n");
                     printf("0. Voltar ao Menu Principal\n");
                     printf("--------------------------------\n");
                     printf("Escolha uma opcao: ");
@@ -338,6 +341,34 @@ int main(void) {
                             } else {
                                 printf("Personagem invalido.\n");
                             }
+                        }
+                        pausar();
+                    } else if (sub_op == 6) {
+                        Magia magia;
+                        printf("Nome da Magia: ");
+                        fgets(magia.nome, sizeof(magia.nome), stdin);
+                        magia.nome[strcspn(magia.nome, "\n")] = '\0';
+
+                        printf("Efeito: ");
+                        fgets(magia.efeito, sizeof(magia.efeito), stdin);
+                        magia.efeito[strcspn(magia.efeito, "\n")] = '\0';
+
+                        printf("Custo de Mana: ");
+                        scanf("%d", &magia.custo_mana);
+                        limpar_buffer();
+
+                        magia_push(&combate.pilha_magias, magia);
+                        printf("Magia '%s' empilhada para resolucao.\n", magia.nome);
+                        pausar();
+                    } else if (sub_op == 7) {
+                        Magia resolvida;
+                        if (magia_pop(&combate.pilha_magias, &resolvida)) {
+                            printf("Resolvendo magia '%s' (efeito: %s, custo: %d mana).\n",
+                                   resolvida.nome, resolvida.efeito, resolvida.custo_mana);
+                            printf("Esta era a ultima magia empilhada - conforme a regra da pilha,\n");
+                            printf("ela resolve antes de qualquer magia empilhada antes dela.\n");
+                        } else {
+                            printf("Nenhuma magia pendente na pilha de resolucao.\n");
                         }
                         pausar();
                     }
@@ -439,6 +470,50 @@ int main(void) {
                             printf("Campanha '%s' carregada com sucesso!\n", caminho);
                         } else {
                             printf("Falha ao carregar campanha.\n");
+                        }
+                        pausar();
+                    }
+                }
+                break;
+            }
+
+            case 6: {
+                int sub_op = -1;
+                while (sub_op != 0) {
+                    limpar_tela();
+                    printf("--- MODO DEBUG (FILA ESTATICA DE COMANDOS) ---\n");
+                    printf("Comandos pendentes no buffer: %d/%d\n", combate.buffer_comandos.total, BUFFER_MAX);
+                    printf("1. Enfileirar Comando\n");
+                    printf("2. Processar Proximo Comando (Dequeue)\n");
+                    printf("0. Voltar ao Menu Principal\n");
+                    printf("-----------------------------------------------\n");
+                    printf("Escolha uma opcao: ");
+
+                    if (scanf("%d", &sub_op) != 1) {
+                        limpar_buffer();
+                        continue;
+                    }
+                    limpar_buffer();
+
+                    limpar_tela();
+                    if (sub_op == 1) {
+                        char cmd[100];
+                        printf("Digite o comando a enfileirar: ");
+                        fgets(cmd, sizeof(cmd), stdin);
+                        cmd[strcspn(cmd, "\n")] = '\0';
+
+                        if (fila_comandos_enqueue(&combate.buffer_comandos, cmd)) {
+                            printf("Comando '%s' enfileirado.\n", cmd);
+                        } else {
+                            printf("Buffer cheio (maximo %d comandos pendentes).\n", BUFFER_MAX);
+                        }
+                        pausar();
+                    } else if (sub_op == 2) {
+                        char saida[100];
+                        if (fila_comandos_dequeue(&combate.buffer_comandos, saida)) {
+                            printf("Processando comando: '%s'\n", saida);
+                        } else {
+                            printf("Nenhum comando pendente no buffer.\n");
                         }
                         pausar();
                     }
