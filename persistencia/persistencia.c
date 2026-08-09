@@ -201,7 +201,6 @@ int persistencia_carregar_campanha(const char* caminho, Local** mundo, Grupo* gr
     unsigned char tem_mundo;
     fread(&tem_mundo, sizeof(unsigned char), 1, f);
 
-    /* Substituição do operador ternário por atribuição condicional imperativa */
     if (tem_mundo) {
         *mundo = local_carregar_no(f);
     } else {
